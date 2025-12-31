@@ -3,153 +3,674 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kevinn | Visual Portfolio</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Goodbye 2025 • Hello 2026</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg1: #050510;
+      --bg2: #0b0b2b;
+      --accent: #7cf6ff;
+      --accent2: #ffb86b;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: auto;
+      will-change: transform;
+    }
+
+    /* MINI NAV */
+    .mini-nav {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 14px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .mini-nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+    }
+
+    .mini-nav a:hover { opacity: 1; }
+
+    /* HERO */
+    .hero-bar {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .hero-bar h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-bar span { opacity: 0.7; margin-top: 10px; }
+
+    .scroll-indicator {
+      margin-top: 30px;
+      font-size: 14px;
+      opacity: 0.6;
+      animation: bounce 1.8s infinite;
+    }
+
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* SECTIONS */
+    .memories {
+      position: relative;
+      z-index: 3;
+      padding: 120vh 6vw 120px;
+      background: linear-gradient(to bottom, rgba(5,5,16,0), rgba(5,5,16,0.95));
+    }
+
+    h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 10px; }
+    .sub { opacity: 0.7; margin-bottom: 40px; }
+
+    .creator {
+      max-width: 1100px;
+      margin: 0 auto 80px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 26px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+    }
+
+    .creator-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .timeline {
+      text-align: center;
+    }
+
+    .timeline span {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .timeline img {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      border-radius: 16px;
+      display: block;
+      margin: 0 auto;
+      background: black;
+    }
+
+    video, img {
+      width: 100%;
+      aspect-ratio: auto;
+      border-radius: 16px;
+      background: black;
+    }
+    
+    video {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 16px;
+      background: black;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto 40px;
+    }
+
+    .card {
+      position: relative;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-name {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 2;
+    }
+
+    .delete {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,80,80,0.85);
+      cursor: pointer;
+      z-index: 3;
+      transition: all 0.3s ease;
+    }
+
+    .delete:hover {
+      background: rgba(255,50,50,1);
+      transform: scale(1.1);
+    }
+
+    .upload { text-align: center; margin-top: 20px; }
+
+    .btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      border: none;
+    }
+
+    .btn:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+      backdrop-filter: blur(20px);
+    }
+
+    .modal-content h3 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      font-size: 14px;
+      margin-bottom: 20px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .modal-content input::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+
+    .modal-content input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-submit {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      color: var(--bg1);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(124, 246, 255, 0.3);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      opacity: 0.7;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 0 20px;
+      font-size: 13px;
+      opacity: 0.6;
+    }
+
+    .note {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: 0.6;
+    }
+  </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">KEVINN</div>
-  <nav>
-    <a onclick="scrollToSection('home')">Home</a>
-    <a onclick="scrollToSection('photos')">Photos</a>
-    <a onclick="scrollToSection('videos')">Videos</a>
-    <a onclick="scrollToSection('about')">About</a>
-  </nav>
-  <form id="photoForm" class="search-container">
-    <input type="file" accept="image/*" id="photoInput" class="search-input" required>
-    <button type="submit" class="search-btn">📤 Submit Photo</button>
-  </form>
-</header>
+<canvas id="fireworks"></canvas>
 
-<section class="hero" id="home">
-  <div class="hero-content">
-    <h1>Visual Stories</h1>
-    <p>Netflix-inspired portfolio for photos & videos.</p>
-    <button onclick="scrollToSection('videos')">Watch Showreel</button>
-  </div>
-</section>
+<nav class="mini-nav">
+  <a href="#top">🎆 Fireworks</a>
+  <a href="#recap">🎞️ My Recap</a>
+  <a href="#memories">🧠 Memories</a>
+</nav>
 
-<section id="trending">
-  <h2>Trending Now</h2>
-  <div class="row">
-    <div class="card">
-      <img src="DSC01774.jpg" alt="">
-      <span>Latest Work</span>
-    </div>
-    <div class="card">
-      <img src="DSC01777.jpg" alt="">
-      <span>Popular</span>
-    </div>
-    <div class="card">
-      <img src="DSC01771.jpg" alt="">
-      <span>Featured</span>
-    </div>
-  </div>
-</section>
-
-<section id="photos">
-  <h2>Photography</h2>
-  <div class="row">
-    <div class="card">
-      <img src="DSC01774.jpg" alt="">
-      <span>Portraits</span>
-    </div>
-    <div class="card">
-      <img src="DSC01777.jpg" alt="">
-      <span>Street</span>
-    </div>
-  </div>
-</section>
-
-<section id="recommended">
-  <h2>Recommended for You</h2>
-  <div class="row">
-    <div class="card">
-      <img src="DSC01771.jpg" alt="">
-      <span>Creative</span>
-    </div>
-    <div class="card">
-      <img src="DSC01774.jpg" alt="">
-      <span>Artistic</span>
-    </div>
-    <div class="card">
-      <img src="DSC01777.jpg" alt="">
-      <span>Professional</span>
-    </div>
-  </div>
-</section>
-
-<section id="videos">
-  <h2>Videos</h2>
-  <div class="video-container">
-    <button class="nav-btn left-nav" onclick="scrollVideos(-1)"><</button>
-    <div class="video-wrapper">
-      <div class="row video-row" id="videoRow">
-        <!-- Video Card 1 -->
-        <div class="card" onmouseenter="playHoverVideo(this)" onmouseleave="pauseHoverVideo(this)" onclick="openVideo('C2363.mp4')">
-          <video muted loop playsinline>
-            <source src="C2363.mp4" type="video/mp4">
-          </video>
-          <span>Showreel</span>
-        </div>
-
-        <!-- Video Card 2 -->
-        <div class="card" onmouseenter="playHoverVideo(this)" onmouseleave="pauseHoverVideo(this)" onclick="openVideo('C2235.mp4')">
-          <video muted loop playsinline>
-            <source src="C2235.mp4" type="video/mp4">
-          </video>
-          <span>Project Highlight</span>
-        </div>
-
-        <!-- Video Card 3 -->
-        <div class="card" onmouseenter="playHoverVideo(this)" onmouseleave="pauseHoverVideo(this)" onclick="openVideo('C2363.mp4')">
-          <video muted loop playsinline>
-            <source src="C2363.mp4" type="video/mp4">
-          </video>
-          <span>Showreel 2</span>
-        </div>
-
-        <!-- Video Card 4 -->
-        <div class="card" onmouseenter="playHoverVideo(this)" onmouseleave="pauseHoverVideo(this)" onclick="openVideo('C2235.mp4')">
-          <video muted loop playsinline>
-            <source src="C2235.mp4" type="video/mp4">
-          </video>
-          <span>Highlight 2</span>
-        </div>
-
-        <!-- Add more cards as needed -->
-      </div>
-      <div class="dot-navigation">
-        <span class="dot active" onclick="goToSlide(0)"></span>
-        <span class="dot" onclick="goToSlide(1)"></span>
-        <span class="dot" onclick="goToSlide(2)"></span>
-        <span class="dot" onclick="goToSlide(3)"></span>
-      </div>
-    </div>
-    <button class="nav-btn right-nav" onclick="scrollVideos(1)">></button>
-  </div>
-</section>
-
-<section id="about">
-  <h2>About Me</h2>
-  <p class="about-text">
-    I’m Kevinn Aspillaga, a multimedia content creator and visual storyteller specializing in technology-driven projects, photography, and video production. I am dedicated to crafting engaging narratives that combine creativity with technical precision.
-  </p>
-</section>
-
-<footer>
-  © 2025 Kevinn Aspillaga
-</footer>
-
-<!-- MODAL -->
-<div class="modal" id="player">
-  <span class="close" onclick="closeVideo()">×</span>
-  <button class="nav-btn prev-btn" onclick="prevVideo()">&#10094;</button>
-  <button class="nav-btn next-btn" onclick="nextVideo()">&#10095;</button>
-  <video controls id="videoPlayer"></video>
+<div id="top" class="hero-bar">
+  <h1>Goodbye 2025<br>Hello 2026</h1>
+  <span>by Kevinn Aspillaga</span>
+  <div class="scroll-indicator">⬇️ Scroll to relive 2025</div>
 </div>
 
-<script src="script.js"></script>
+<section class="memories" id="recap">
+  <h2>🎞️ My 2025 Timeline</h2>
+  <p class="sub">Every moment that shaped the year</p>
+
+  <div class="creator">
+    <div class="creator-grid">
+      <div class="timeline"><span>January</span><img src="DSC00613-min.JPG" alt="January"></div>
+      <div class="timeline"><span>March</span><img src="DSC00631-min.JPG" alt="March"></div>
+      <div class="timeline"><span>June</span><img src="DSC01450-min.JPG" alt="June"></div>
+      <div class="timeline"><span>August</span><img src="DSC01471-min.JPG" alt="August"></div>
+      <div class="timeline"><span>October</span><img src="DSC01484-min.JPG" alt="October"></div>
+      <div class="timeline"><span>December</span><img src="received_824700253715945.jpeg" alt="December"></div>
+    </div>
+  </div>
+
+  <h2 id="memories">🧠 Community Memories</h2>
+  <div class="loading" id="loading" style="display: none;">Loading memories...</div>
+  <div class="gallery" id="gallery"></div>
+
+  <div class="upload">
+    <button class="btn" id="uploadBtn">➕ Add Your Memory</button>
+    <input type="file" id="uploader" accept="video/mp4,image/*" hidden>
+    <p class="note">Photos uploaded are visible to everyone in this session</p>
+  </div>
+</section>
+
+<footer>© 2026 • Made by Kevinn Aspillaga</footer>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>✨ Share Your Memory</h3>
+    <input type="text" id="userName" placeholder="Enter your name" maxlength="30" />
+    <div class="modal-buttons">
+      <button class="btn-cancel" id="cancelBtn">Cancel</button>
+      <button class="btn-submit" id="submitBtn">Upload</button>
+    </div>
+  </div>
+</div>
+
+<audio id="boom" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/button_tiny.mp3"></audio>
+<audio id="bgm" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/bell_ring.mp3" loop></audio>
+
+<script>
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d', { alpha: false });
+const boom = document.getElementById('boom');
+const bgm = document.getElementById('bgm');
+bgm.volume = 0.2;
+
+let particles = [];
+let autoFireInterval;
+
+function resize(){ 
+  canvas.width = innerWidth; 
+  canvas.height = innerHeight; 
+}
+addEventListener('resize', resize); 
+resize();
+
+class Particle {
+  constructor(x, y, color) {
+    const a = Math.random() * Math.PI * 2;
+    const s = Math.random() * 4 + 1.5;
+    this.x = x; 
+    this.y = y;
+    this.vx = Math.cos(a) * s;
+    this.vy = Math.sin(a) * s;
+    this.life = 1; 
+    this.color = color;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += 0.05;
+    this.life -= 0.015;
+  }
+  draw() {
+    ctx.globalAlpha = this.life;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function fire(x, y){
+  const colors = ['#7cf6ff', '#ffb86b', '#ff5f9e', '#b28dff'];
+  for(let i = 0; i < 80; i++) {
+    particles.push(new Particle(x, y, colors[Math.random() * colors.length | 0]));
+  }
+  boom.currentTime = 0; 
+  boom.play().catch(() => {});
+}
+
+function animate(){
+  ctx.fillStyle = 'rgba(5,5,16,0.2)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.life > 0);
+  for(let i = 0; i < particles.length; i++){
+    particles[i].update();
+    particles[i].draw();
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+function startAutoFire(){
+  autoFireInterval = setInterval(() => {
+    fire(Math.random() * canvas.width, Math.random() * canvas.height * 0.5);
+  }, 2000);
+}
+startAutoFire();
+
+canvas.addEventListener('click', e => {
+  fire(e.clientX, e.clientY);
+  clearInterval(autoFireInterval);
+  setTimeout(startAutoFire, 5000);
+});
+
+// Memory Gallery System
+const uploader = document.getElementById('uploader');
+const uploadBtn = document.getElementById('uploadBtn');
+const gallery = document.getElementById('gallery');
+const modal = document.getElementById('modal');
+const userName = document.getElementById('userName');
+const submitBtn = document.getElementById('submitBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const loading = document.getElementById('loading');
+
+let currentFile = null;
+let memories = [];
+
+// Check if storage API is available
+const hasStorage = typeof window.storage !== 'undefined';
+
+// Load memories on start
+async function loadMemories() {
+  if (!hasStorage) {
+    console.log('Using session-based storage');
+    return;
+  }
+  
+  try {
+    loading.style.display = 'block';
+    const result = await window.storage.list('memory:', true);
+    
+    if (result && result.keys && result.keys.length > 0) {
+      const sortedKeys = result.keys.sort().reverse();
+      
+      for (const key of sortedKeys) {
+        const data = await window.storage.get(key, true);
+        if (data && data.value) {
+          const memory = JSON.parse(data.value);
+          memories.push(memory);
+          createMemoryCard(memory.url, memory.name, memory.type, memory.id);
+        }
+      }
+    }
+    loading.style.display = 'none';
+  } catch (error) {
+    console.log('Loading from session storage');
+    loading.style.display = 'none';
+  }
+}
+
+// Create memory card
+function createMemoryCard(url, name, type, id) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = id;
+  
+  if (type === 'video') {
+    const v = document.createElement('video');
+    v.src = url;
+    v.controls = true;
+    card.appendChild(v);
+  } else {
+    const img = document.createElement('img');
+    img.src = url;
+    card.appendChild(img);
+  }
+  
+  const nameTag = document.createElement('div');
+  nameTag.className = 'card-name';
+  nameTag.textContent = name;
+  card.appendChild(nameTag);
+  
+  const deleteBtn = document.createElement('div');
+  deleteBtn.className = 'delete';
+  deleteBtn.textContent = 'Delete';
+  deleteBtn.onclick = () => deleteMemory(id, card);
+  card.appendChild(deleteBtn);
+  
+  gallery.prepend(card);
+}
+
+// Delete memory
+async function deleteMemory(id, cardElement) {
+  if (confirm('Delete this memory?')) {
+    cardElement.remove();
+    memories = memories.filter(m => m.id !== id);
+    
+    if (hasStorage) {
+      try {
+        await window.storage.delete(`memory:${id}`, true);
+      } catch (error) {
+        console.log('Memory removed from session');
+      }
+    }
+  }
+}
+
+// Upload button click
+uploadBtn.addEventListener('click', () => {
+  uploader.click();
+});
+
+// File selected
+uploader.addEventListener('change', e => {
+  currentFile = e.target.files[0];
+  if (currentFile) {
+    modal.classList.add('active');
+    userName.focus();
+  }
+});
+
+// Cancel button
+cancelBtn.addEventListener('click', () => {
+  modal.classList.remove('active');
+  userName.value = '';
+  currentFile = null;
+  uploader.value = '';
+});
+
+// Submit button
+submitBtn.addEventListener('click', async () => {
+  const name = userName.value.trim();
+  
+  if (!name) {
+    alert('Please enter your name!');
+    return;
+  }
+  
+  if (!currentFile) {
+    alert('No file selected!');
+    return;
+  }
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Uploading...';
+  
+  try {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target.result;
+      const type = currentFile.type.startsWith('video') ? 'video' : 'image';
+      const timestamp = Date.now();
+      
+      const memoryData = {
+        url: base64,
+        name: name,
+        type: type,
+        timestamp: timestamp,
+        id: timestamp
+      };
+      
+      // Try to save to storage if available
+      if (hasStorage) {
+        try {
+          await window.storage.set(`memory:${timestamp}`, JSON.stringify(memoryData), true);
+        } catch (error) {
+          console.log('Saved to session only');
+        }
+      }
+      
+      // Add to local array
+      memories.push(memoryData);
+      
+      // Display the card
+      createMemoryCard(base64, name, type, timestamp);
+      
+      // Close modal and reset
+      modal.classList.remove('active');
+      userName.value = '';
+      currentFile = null;
+      uploader.value = '';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Upload';
+      
+      // Trigger fireworks celebration!
+      fire(window.innerWidth / 2, window.innerHeight / 2);
+    };
+    
+    reader.readAsDataURL(currentFile);
+  } catch (error) {
+    console.error('Error uploading memory:', error);
+    alert('Error uploading memory. Please try again!');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Upload';
+  }
+});
+
+// Enter key to submit
+userName.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    submitBtn.click();
+  }
+});
+
+// Load memories on start
+loadMemories();
+
+addEventListener('click', () => bgm.play().catch(() => {}), {once: true});
+</script>
+
 </body>
 </html>
