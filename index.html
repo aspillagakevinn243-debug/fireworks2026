@@ -120,19 +120,41 @@
       gap: 18px;
     }
 
-    .timeline span {
-      display: block;
-      font-size: 13px;
-      opacity: 0.6;
-      margin-bottom: 6px;
-    }
+    .timeline img {
+  width: auto;       /* keep original width */
+  height: auto;      /* keep original height */
+  max-width: 100%;   /* prevent overflowing the grid */
+  border-radius: 16px;
+  display: block;
+  margin: 0 auto;
+  background: black;
+}
 
-    video, img {
-      width: 100%;
-      aspect-ratio: 16/9;
-      border-radius: 16px;
-      background: black;
-    }
+
+ video, img {
+  width: 100%;
+  aspect-ratio: auto;
+  border-radius: 16px;
+  background: black;
+}
+ 
+video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 16px;
+  background: black;
+}
+
+.timeline img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  border-radius: 16px;
+  display: block;
+  margin: 0 auto;
+  background: black;
+}
+
 
     .gallery {
       display: grid;
@@ -200,16 +222,17 @@
   <h2>🎞️ My 2025 Timeline</h2>
   <p class="sub">Every moment that shaped the year</p>
 
-  <div class="creator">
-    <div class="creator-grid">
-      <div class="timeline"><span>January</span><video controls src="C1315_1.mp4"></video></div>
-      <div class="timeline"><span>March</span><video controls src="C2252.mp4"></video></div>
-      <div class="timeline"><span>June</span><video controls src="C1720.mp4"></video></div>
-      <div class="timeline"><span>August</span><video controls src="final na final.mp4"></video></div>
-      <div class="timeline"><span>October</span><video controls src="JDVP 2_3.mp4"></video></div>
-      <div class="timeline"><span>December</span><video controls src="w name.mp4"></video></div>
-    </div>
+ <div class="creator">
+  <div class="creator-grid">
+    <div class="timeline"><span>January</span><img src="DSC00613-min.JPG" alt="January"></div>
+    <div class="timeline"><span>March</span><img src="DSC00631-min.JPG" alt="March"></div>
+    <div class="timeline"><span>June</span><img src="DSC01450-min.JPG" alt="June"></div>
+    <div class="timeline"><span>August</span><img src="DSC01471-min.JPG" alt="August"></div>
+    <div class="timeline"><span>October</span><img src="DSC01484-min.JPG" alt="October"></div>
+    <div class="timeline"><span>December</span><img src="received_824700253715945.jpeg" alt="December"></div>
   </div>
+</div>
+
 
   <h2 id="memories">🧠 Community Memories</h2>
   <div class="gallery" id="gallery"></div>
