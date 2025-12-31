@@ -192,6 +192,24 @@
       z-index: 2;
     }
 
+    .delete {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,80,80,0.85);
+      cursor: pointer;
+      z-index: 3;
+      transition: all 0.3s ease;
+    }
+
+    .delete:hover {
+      background: rgba(255,50,50,1);
+      transform: scale(1.1);
+    }
+
     .upload { text-align: center; margin-top: 20px; }
 
     .btn {
@@ -203,6 +221,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       font-size: 14px;
+      border: none;
     }
 
     .btn:hover {
@@ -286,6 +305,11 @@
       box-shadow: 0 8px 20px rgba(124, 246, 255, 0.3);
     }
 
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .btn-cancel {
       background: rgba(255,255,255,0.1);
       color: white;
@@ -305,6 +329,13 @@
       text-align: center;
       padding: 40px 0 20px;
       font-size: 13px;
+      opacity: 0.6;
+    }
+
+    .note {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 12px;
       opacity: 0.6;
     }
   </style>
@@ -331,22 +362,23 @@
 
   <div class="creator">
     <div class="creator-grid">
-      <div class="timeline"><span>NOVEMBER</span><img src="DSC00613-min.JPG" alt="January"></div>
-      <div class="timeline"><span>NOVEMBER</span><img src="DSC00631-min.JPG" alt="March"></div>
-      <div class="timeline"><span>DECEMBER</span><img src="DSC01450-min.JPG" alt="June"></div>
-      <div class="timeline"><span>DECEMBER</span><img src="DSC01471-min.JPG" alt="August"></div>
-      <div class="timeline"><span>DECEMBER</span><img src="DSC01484-min.JPG" alt="October"></div>
-      <div class="timeline"><span>DECEMBER</span><img src="received_824700253715945.jpeg" alt="December"></div>
+      <div class="timeline"><span>January</span><img src="DSC00613-min.JPG" alt="January"></div>
+      <div class="timeline"><span>March</span><img src="DSC00631-min.JPG" alt="March"></div>
+      <div class="timeline"><span>June</span><img src="DSC01450-min.JPG" alt="June"></div>
+      <div class="timeline"><span>August</span><img src="DSC01471-min.JPG" alt="August"></div>
+      <div class="timeline"><span>October</span><img src="DSC01484-min.JPG" alt="October"></div>
+      <div class="timeline"><span>December</span><img src="received_824700253715945.jpeg" alt="December"></div>
     </div>
   </div>
 
   <h2 id="memories">🧠 Community Memories</h2>
-  <div class="loading" id="loading">Loading memories...</div>
+  <div class="loading" id="loading" style="display: none;">Loading memories...</div>
   <div class="gallery" id="gallery"></div>
 
   <div class="upload">
     <button class="btn" id="uploadBtn">➕ Add Your Memory</button>
     <input type="file" id="uploader" accept="video/mp4,image/*" hidden>
+    <p class="note">Photos uploaded are visible to everyone in this session</p>
   </div>
 </section>
 
@@ -364,8 +396,8 @@
   </div>
 </div>
 
-<audio id="boom" src="single-firework-79814.mp3"></audio>
-<audio id="bgm" src="single-firework-79814.mp3" loop></audio>
+<audio id="boom" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/button_tiny.mp3"></audio>
+<audio id="bgm" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/bell_ring.mp3" loop></audio>
 
 <script>
 const canvas = document.getElementById('fireworks');
@@ -444,7 +476,7 @@ canvas.addEventListener('click', e => {
   setTimeout(startAutoFire, 5000);
 });
 
-// Memory Gallery with Persistent Storage
+// Memory Gallery System
 const uploader = document.getElementById('uploader');
 const uploadBtn = document.getElementById('uploadBtn');
 const gallery = document.getElementById('gallery');
@@ -455,36 +487,46 @@ const cancelBtn = document.getElementById('cancelBtn');
 const loading = document.getElementById('loading');
 
 let currentFile = null;
+let memories = [];
 
-// Load all memories on page load
+// Check if storage API is available
+const hasStorage = typeof window.storage !== 'undefined';
+
+// Load memories on start
 async function loadMemories() {
+  if (!hasStorage) {
+    console.log('Using session-based storage');
+    return;
+  }
+  
   try {
     loading.style.display = 'block';
     const result = await window.storage.list('memory:', true);
     
     if (result && result.keys && result.keys.length > 0) {
-      // Sort by timestamp (newest first)
       const sortedKeys = result.keys.sort().reverse();
       
       for (const key of sortedKeys) {
         const data = await window.storage.get(key, true);
         if (data && data.value) {
           const memory = JSON.parse(data.value);
-          createMemoryCard(memory.url, memory.name, memory.type);
+          memories.push(memory);
+          createMemoryCard(memory.url, memory.name, memory.type, memory.id);
         }
       }
     }
     loading.style.display = 'none';
   } catch (error) {
-    console.log('No memories yet or error loading:', error);
+    console.log('Loading from session storage');
     loading.style.display = 'none';
   }
 }
 
 // Create memory card
-function createMemoryCard(url, name, type) {
+function createMemoryCard(url, name, type, id) {
   const card = document.createElement('div');
   card.className = 'card';
+  card.dataset.id = id;
   
   if (type === 'video') {
     const v = document.createElement('video');
@@ -502,7 +544,29 @@ function createMemoryCard(url, name, type) {
   nameTag.textContent = name;
   card.appendChild(nameTag);
   
+  const deleteBtn = document.createElement('div');
+  deleteBtn.className = 'delete';
+  deleteBtn.textContent = 'Delete';
+  deleteBtn.onclick = () => deleteMemory(id, card);
+  card.appendChild(deleteBtn);
+  
   gallery.prepend(card);
+}
+
+// Delete memory
+async function deleteMemory(id, cardElement) {
+  if (confirm('Delete this memory?')) {
+    cardElement.remove();
+    memories = memories.filter(m => m.id !== id);
+    
+    if (hasStorage) {
+      try {
+        await window.storage.delete(`memory:${id}`, true);
+      } catch (error) {
+        console.log('Memory removed from session');
+      }
+    }
+  }
 }
 
 // Upload button click
@@ -541,8 +605,10 @@ submitBtn.addEventListener('click', async () => {
     return;
   }
   
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Uploading...';
+  
   try {
-    // Convert file to base64
     const reader = new FileReader();
     reader.onload = async (e) => {
       const base64 = e.target.result;
@@ -553,20 +619,32 @@ submitBtn.addEventListener('click', async () => {
         url: base64,
         name: name,
         type: type,
-        timestamp: timestamp
+        timestamp: timestamp,
+        id: timestamp
       };
       
-      // Save to shared storage
-      await window.storage.set(`memory:${timestamp}`, JSON.stringify(memoryData), true);
+      // Try to save to storage if available
+      if (hasStorage) {
+        try {
+          await window.storage.set(`memory:${timestamp}`, JSON.stringify(memoryData), true);
+        } catch (error) {
+          console.log('Saved to session only');
+        }
+      }
+      
+      // Add to local array
+      memories.push(memoryData);
       
       // Display the card
-      createMemoryCard(base64, name, type);
+      createMemoryCard(base64, name, type, timestamp);
       
       // Close modal and reset
       modal.classList.remove('active');
       userName.value = '';
       currentFile = null;
       uploader.value = '';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Upload';
       
       // Trigger fireworks celebration!
       fire(window.innerWidth / 2, window.innerHeight / 2);
@@ -576,6 +654,8 @@ submitBtn.addEventListener('click', async () => {
   } catch (error) {
     console.error('Error uploading memory:', error);
     alert('Error uploading memory. Please try again!');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Upload';
   }
 });
 
