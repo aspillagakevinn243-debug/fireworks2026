@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>30-Day Content Schedule Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      --bg-dark: #0a0e27;
+      --bg-card: #1a1f3a;
+      --bg-card-hover: #252b4a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0aec0;
+      --accent-purple: #667eea;
+      --accent-pink: #f5576c;
+      --accent-green: #38ef7d;
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+      --shadow-xl: 0 30px 90px rgba(0, 0, 0, 0.7);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(245, 87, 108, 0.15) 0%, transparent 50%);
+      animation: morphing 20s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    @keyframes morphing {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(5%, -5%) rotate(120deg); }
+      66% { transform: translate(-5%, 5%) rotate(240deg); }
+    }
+
+    header {
+      background: var(--gradient-primary);
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      position: relative;
+      box-shadow: var(--shadow-lg);
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    header h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 0.8rem;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+      animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      z-index: 1;
+    }
+
+    header p {
+      font-size: 1.3rem;
+      opacity: 0.95;
+      animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .stat-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: var(--shadow-xl);
+      border-color: var(--accent-purple);
+    }
+
+    .stat-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+
+    .stat-number {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      animation: fadeInUp 1s ease-out 0.2s backwards;
+    }
+
+    .btn {
+      background: var(--gradient-success);
+      color: white;
+      border: none;
+      padding: 1.1rem 2.5rem;
+      cursor: pointer;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 20px rgba(56, 239, 125, 0.3);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(56, 239, 125, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--gradient-secondary);
+      box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
+    }
+
+    .btn-secondary:hover {
+      box-shadow: 0 12px 30px rgba(245, 87, 108, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--accent-purple);
+      box-shadow: none;
+    }
+
+    .btn-outline:hover {
+      background: var(--accent-purple);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .search-filter {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      animation: fadeInUp 1s ease-out 0.3s backwards;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 280px;
+      padding: 1.1rem 1.5rem;
+      border-radius: 12px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 1.05rem;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    select {
+      padding: 1.1rem 1.5rem;
+      border-radius: 12px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .table-container {
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: var(--shadow-lg);
+      overflow-x: auto;
+      animation: fadeInUp 1s ease-out 0.4s backwards;
+      border: 1px solid rgba(102, 126, 234, 0.15);
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .table-header h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 1200px;
+    }
+
+    thead {
+      background: var(--gradient-primary);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    th {
+      padding: 1.5rem 1.2rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: white;
+      white-space: nowrap;
+    }
+
+    th:first-child {
+      border-radius: 12px 0 0 0;
+      text-align: center;
+    }
+
+    th:last-child {
+      border-radius: 0 12px 0 0;
+      text-align: center;
+    }
+
+    tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      background: var(--bg-card);
+    }
+
+    tbody tr:hover {
+      background: var(--bg-card-hover);
+      transform: scale(1.005);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    }
+
+    td {
+      padding: 1.5rem 1.2rem;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    td:first-child {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--accent-purple);
+      text-align: center;
+    }
+
+    .story-badge {
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .story-a {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .story-b {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .purpose-text {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: center;
+    }
+
+    .btn-small {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-view {
+      background: var(--gradient-success);
+      color: white;
+      box-shadow: 0 4px 12px rgba(56, 239, 125, 0.3);
+    }
+
+    .btn-view:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(56, 239, 125, 0.4);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-card);
+      padding: 3rem;
+      border-radius: 24px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .modal-header h3 {
+      font-size: 2rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .close-btn:hover {
+      color: var(--accent-pink);
+      transform: rotate(90deg);
+    }
+
+    .modal-detail {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-detail label {
+      display: block;
+      font-weight: 700;
+      color: var(--accent-purple);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    .modal-detail p {
+      color: var(--text-primary);
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    footer {
+      background: var(--bg-card);
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      border-top: 1px solid rgba(102, 126, 234, 0.2);
+      position: relative;
+      z-index: 10;
+      margin-top: 5rem;
+    }
+
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      margin-bottom: 3rem;
+      text-align: left;
+    }
+
+    .footer-section h4 {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.8rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-purple);
+      transform: translateX(5px);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+
+    .social-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(102, 126, 234, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 1.3rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .social-icon:hover {
+      background: var(--gradient-primary);
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .copyright {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(102, 126, 234, 0.2);
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2.5rem;
+      }
+
+      .controls, .search-filter {
+        flex-direction: column;
+      }
+
+      .btn, .search-box, select {
+        width: 100%;
+      }
+
+      .table-container {
+        padding: 1.5rem;
+      }
+
+      .modal-content {
+        padding: 2rem;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient-primary);
+      border-radius: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-purple);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📅 30-Day Content Schedule Pro</h1>
+    <p>Manage your complete content calendar with professional precision</p>
+  </header>
+
+  <main>
+    <div class="dashboard">
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-number" id="totalSchedules">60</div>
+        <div class="stat-label">Total Schedules</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-number" id="storyA">30</div>
+        <div class="stat-label">Story A (Trust)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-number" id="storyB">30</div>
+        <div class="stat-label">Story B (Sales)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-number">30</div>
+        <div class="stat-label">Days Planned</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="exportToCSV()">
+        <span>📥</span> Export to CSV
+      </button>
+      <button class="btn btn-secondary" onclick="exportToJSON()">
+        <span>💾</span> Export to JSON
+      </button>
+      <button class="btn btn-outline" onclick="printSchedule()">
+        <span>🖨️</span> Print Schedule
+      </button>
+    </div>
+
+    <div class="search-filter">
+      <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search schedules by day, purpose, visuals, or caption...">
+      <div class="filter-group">
+        <select id="filterDay">
+          <option value="all">All Days</option>
+          <option value="1-10">Days 1-10</option>
+          <option value="11-20">Days 11-20</option>
+          <option value="21-30">Days 21-30</option>
+        </select>
+        <select id="filterStory">
+          <option value="all">All Stories</option>
+          <option value="A">Story A (Trust)</option>
+          <option value="B">Story B (Sales)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-header">
+        <h2>Complete 30-Day Schedule</h2>
+      </div>
+      
+      <table id="scheduleTable">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Story</th>
+            <th>Purpose</th>
+            <th>Suggested Visuals</th>
+            <th>Short Caption Hook</th>
+            <th>Interactive Element</th>
+            <th>Soft CTA</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <div id="detailModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Schedule Details</h3>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h4>About</h4>
+          <ul class="footer-links">
+            <li><a href="#">Our Story</a></li>
+            <li><a href="#">Team</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press Kit</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Features</h4>
+          <ul class="footer-links">
+            <li><a href="#">Schedule Management</a></li>
+            <li><a href="#">Content Planning</a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Integrations</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Resources</h4>
+          <ul class="footer-links">
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">Tutorials</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Community</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Support</h4>
+          <ul class="footer-links">
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="social-icons">
+        <a href="#" class="social-icon" title="Twitter">𝕏</a>
+        <a href="#" class="social-icon" title="Facebook">f</a>
+        <a href="#" class="social-icon" title="LinkedIn">in</a>
+        <a href="#" class="social-icon" title="Instagram">📷</a>
+        <a href="#" class="social-icon" title="YouTube">▶</a>
+      </div>
+      
+      <div class="copyright">
+        &copy; 2026 30-Day Content Schedule Pro. All rights reserved. Made with 💜 for content creators worldwide.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const schedules = [
+      {day:1, story:"A", purpose:"Trust – Before vs After", visuals:"Old messy desk clip", caption:"I thought this setup was fine…", interactive:"Emoji slider 😬→😌", cta:"—"},
+      {day:1, story:"B", purpose:"Sales", visuals:"Clean desk POV", caption:"Small upgrades = big clarity", interactive:"Poll: Setup matters?", cta:"Want the gear?"},
+      {day:2, story:"A", purpose:"Trust – Problem → Solution", visuals:"You frustrated at desk", caption:"Good ideas, bad gear", interactive:"Question: Relatable?", cta:"—"},
+      {day:2, story:"B", purpose:"Sales", visuals:"Using [mic]", caption:"This fixed my biggest issue", interactive:"Tap if 🔊", cta:"Want the link?"},
+      {day:3, story:"A", purpose:"Trust – Mistake → Lesson", visuals:"Head shake at old clip", caption:"I wasted money first", interactive:"Poll: Been there?", cta:"—"},
+      {day:3, story:"B", purpose:"Sales", visuals:"Typing with [keyboard]", caption:"This was the smarter move", interactive:"Emoji slider 💸", cta:"I can share it"},
+      {day:4, story:"A", purpose:"Trust – POV / Day-in-life", visuals:"Morning desk POV", caption:"This is how I start now", interactive:"Tap if ☕", cta:"—"},
+      {day:4, story:"B", purpose:"Sales", visuals:"Wearing [headset]", caption:"Peace of mind matters", interactive:"Poll: Audio stress?", cta:"Asked about this"},
+      {day:5, story:"A", purpose:"Trust – Identity", visuals:"Talking to camera", caption:"Creators deserve quality", interactive:"Emoji slider 🎯", cta:"—"},
+      {day:5, story:"B", purpose:"Sales", visuals:"Camera on [camera gear]", caption:"This made me feel legit", interactive:"Tap if 📸", cta:"Want it?"},
+      {day:6, story:"A", purpose:"Trust – Budget honesty", visuals:"Notes on phone", caption:"I'm not buying premium yet", interactive:"Poll: Budget first?", cta:"—"},
+      {day:6, story:"B", purpose:"Sales", visuals:"Affordable [product]", caption:"Best value I found", interactive:"Emoji slider 💡", cta:"Link if curious"},
+      {day:7, story:"A", purpose:"Trust – Social proof", visuals:"DM/comment screenshot", caption:"This message hit me", interactive:"Tap if ❤️", cta:"—"},
+      {day:7, story:"B", purpose:"Sales", visuals:"Product in use", caption:"This is what they asked about", interactive:"Poll: Gear link?", cta:"Want it?"},
+      {day:8, story:"A", purpose:"Trust – Problem", visuals:"Messy cable shot", caption:"This slowed me down daily", interactive:"Emoji slider 😤", cta:"—"},
+      {day:8, story:"B", purpose:"Sales", visuals:"Clean setup reveal", caption:"Clarity feels different", interactive:"Tap if 👀", cta:"Happy to share"},
+      {day:9, story:"A", purpose:"Trust – POV", visuals:"Editing / gaming POV", caption:"Consistency > perfection", interactive:"Tap if ✔️", cta:"—"},
+      {day:9, story:"B", purpose:"Sales", visuals:"Same [mic]", caption:"One less thing to worry about", interactive:"Poll: Audio matters?", cta:"Link's there"},
+      {day:10, story:"A", purpose:"Trust – Mistake", visuals:"Old purchase regret clip", caption:"Cheap cost me more", interactive:"Poll: Regret buys?", cta:"—"},
+      {day:10, story:"B", purpose:"Sales", visuals:"New [mouse]", caption:"This felt instantly better", interactive:"Emoji slider 🖱️", cta:"Want the info?"},
+      {day:11, story:"A", purpose:"Trust – Identity", visuals:"Calm talking clip", caption:"Confidence changes output", interactive:"Emoji slider 🔥", cta:"—"},
+      {day:11, story:"B", purpose:"Sales", visuals:"Using [keyboard]", caption:"Feels reliable every day", interactive:"Tap if ⌨️", cta:"Creators ask for this"},
+      {day:12, story:"A", purpose:"Trust – Soft FAQ", visuals:"Text overlay Q", caption:"No, you don't need expensive", interactive:"Poll: Agree?", cta:"—"},
+      {day:12, story:"B", purpose:"Sales", visuals:"Budget [product]", caption:"This is enough to start", interactive:"Emoji slider 👍", cta:"I can link it"},
+      {day:13, story:"A", purpose:"Trust – Social proof", visuals:"Comment reaction", caption:"This made my day", interactive:"Tap if 💬", cta:"—"},
+      {day:13, story:"B", purpose:"Sales", visuals:"Product close-up", caption:"This helped them too", interactive:"Poll: Want it?", cta:"Want the link?"},
+      {day:14, story:"A", purpose:"Trust – Reflection", visuals:"Night desk clip", caption:"Progress feels quieter now", interactive:"Emoji slider 🌙", cta:"—"},
+      {day:14, story:"B", purpose:"Sales", visuals:"Same setup", caption:"Quiet upgrades win", interactive:"Tap if 🤍", cta:"Sharing below"},
+      {day:15, story:"A", purpose:"Trust – If I started again", visuals:"Talking clip", caption:"I'd start here", interactive:"Tap if 🔁", cta:"—"},
+      {day:15, story:"B", purpose:"Sales", visuals:"[Mic] focus", caption:"This would be first", interactive:"Poll: Audio first?", cta:"Want it?"},
+      {day:16, story:"A", purpose:"Trust – Mistake", visuals:"Old audio clip", caption:"This held me back", interactive:"Emoji slider 😖", cta:"—"},
+      {day:16, story:"B", purpose:"Sales", visuals:"New audio test", caption:"Night and day difference", interactive:"Tap if 🎧", cta:"Link if helpful"},
+      {day:17, story:"A", purpose:"Trust – Budget honesty", visuals:"Price comparison", caption:"Value > hype", interactive:"Poll: Agree?", cta:"—"},
+      {day:17, story:"B", purpose:"Sales", visuals:"Mid-range [product]", caption:"Worth it long-term", interactive:"Emoji slider 💰", cta:"Creators ask about this"},
+      {day:18, story:"A", purpose:"Trust – POV", visuals:"Streaming/editing", caption:"Flow feels smoother now", interactive:"Tap if ⚡", cta:"—"},
+      {day:18, story:"B", purpose:"Sales", visuals:"Same gear", caption:"Less friction = more output", interactive:"Poll: Want ease?", cta:"I can share"},
+      {day:19, story:"A", purpose:"Trust – Social proof", visuals:"DM screenshot", caption:"You're not alone", interactive:"Tap if 🤝", cta:"—"},
+      {day:19, story:"B", purpose:"Sales", visuals:"Gear shown", caption:"This is what helped", interactive:"Poll: Link?", cta:"Want it?"},
+      {day:20, story:"A", purpose:"Trust – Lesson", visuals:"Calm talk clip", caption:"Gear didn't fix me—clarity did", interactive:"Emoji slider 🧠", cta:"—"},
+      {day:20, story:"B", purpose:"Sales", visuals:"Supporting product", caption:"This supports the work", interactive:"Tap if 🛠️", cta:"Link's there"},
+      {day:21, story:"A", purpose:"Trust – Reflection", visuals:"Weekly recap clip", caption:"Small steps stack", interactive:"Emoji slider 📈", cta:"—"},
+      {day:21, story:"B", purpose:"Sales", visuals:"Full setup", caption:"Nothing fancy—just solid", interactive:"Poll: Setup tour?", cta:"Want the list?"},
+      {day:22, story:"A", purpose:"Trust – Future self", visuals:"Desk glow shot", caption:"This supports future me", interactive:"Emoji slider ✨", cta:"—"},
+      {day:22, story:"B", purpose:"Sales", visuals:"Core product", caption:"Built for consistency", interactive:"Tap if 🔮", cta:"Sharing if needed"},
+      {day:23, story:"A", purpose:"Trust – If I restarted", visuals:"Talking clip", caption:"I'd stop overbuying", interactive:"Poll: Same?", cta:"—"},
+      {day:23, story:"B", purpose:"Sales", visuals:"One essential", caption:"This is enough", interactive:"Emoji slider ✔️", cta:"Want the link?"},
+      {day:24, story:"A", purpose:"Trust – POV", visuals:"Late-night grind", caption:"This feels sustainable", interactive:"Tap if 🌙", cta:"—"},
+      {day:24, story:"B", purpose:"Sales", visuals:"Same product", caption:"No stress, just works", interactive:"Poll: Ease matters?", cta:"Link's up"},
+      {day:25, story:"A", purpose:"Trust – Budget honesty", visuals:"Simple notes", caption:"Upgrade slowly, not impulsively", interactive:"Emoji slider 🐢", cta:"—"},
+      {day:25, story:"B", purpose:"Sales", visuals:"Budget gear", caption:"Best place to start", interactive:"Tap if 🧩", cta:"Happy to share"},
+      {day:26, story:"A", purpose:"Trust – Social proof", visuals:"Comment reply", caption:"This keeps me going", interactive:"Tap if ❤️", cta:"—"},
+      {day:26, story:"B", purpose:"Sales", visuals:"Product mention", caption:"This is what I use", interactive:"Poll: Want it?", cta:"Link if curious"},
+      {day:27, story:"A", purpose:"Trust – Reflection", visuals:"Calm desk shot", caption:"Confidence is quieter", interactive:"Emoji slider 😌", cta:"—"},
+      {day:27, story:"B", purpose:"Sales", visuals:"Setup pan", caption:"Clarity shows up daily", interactive:"Tap if 👁️", cta:"Sharing below"},
+      {day:28, story:"A", purpose:"Trust – Before/After", visuals:"Old vs new setup", caption:"Look how far this came", interactive:"Emoji slider 📊", cta:"—"},
+      {day:28, story:"B", purpose:"Sales", visuals:"Key upgrade", caption:"Biggest difference-maker", interactive:"Poll: Guess which?", cta:"Want it?"},
+      {day:29, story:"A", purpose:"Trust – Social proof", visuals:"DM collage", caption:"This wasn't just me", interactive:"Tap if 🫶", cta:"—"},
+      {day:29, story:"B", purpose:"Sales", visuals:"Same product", caption:"This helped them too", interactive:"Poll: Link?", cta:"I can share"},
+      {day:30, story:"A", purpose:"Trust – Long-term vision", visuals:"Talking to camera", caption:"Build something sustainable", interactive:"Emoji slider 🧠", cta:"—"},
+      {day:30, story:"B", purpose:"Sales", visuals:"Calm setup shot", caption:"If you upgrade, start here", interactive:"Tap if 🔑", cta:"Link's there"}
+    ];
+
+    let filteredSchedules = [...schedules];
+
+    function renderSchedules(data = filteredSchedules) {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      
+      data.forEach((sch, idx) => {
+        const row = document.createElement('tr');
+        const storyClass = sch.story === 'A' ? 'story-a' : 'story-b';
+        
+        row.innerHTML = `
+          <td>${sch.day}</td>
+          <td><span class="story-badge ${storyClass}">${sch.story}</span></td>
+          <td><span class="purpose-text">${sch.purpose}</span></td>
+          <td>${sch.visuals}</td>
+          <td>${sch.caption}</td>
+          <td>${sch.interactive}</td>
+          <td>${sch.cta}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-small btn-view" onclick="viewDetails(${idx})">👁️ View</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function viewDetails(idx) {
+      const sch = filteredSchedules[idx];
+      const modal = document.getElementById('detailModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+      
+      modalTitle.textContent = `Day ${sch.day} - Story ${sch.story}`;
+      modalBody.innerHTML = `
+        <div class="modal-detail">
+          <label>Purpose</label>
+          <p>${sch.purpose}</p>
+        </div>
+        <div class="modal-detail">
+          <label>Suggested Visuals</label>
+          <p>${sch.visuals}</p>
+        </div>
+        <div class="modal-detail">
+          <label>Caption Hook</label>
+          <p>${sch.caption}</p>
+        </div>
+        <div class="modal-detail">
+          <label>Interactive Element</label>
+          <p>${sch.interactive}</p>
+        </div>
+        <div class="modal-detail">
+          <label>Call to Action</label>
+          <p>${sch.cta}</p>
+        </div>
+      `;
+      
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('detailModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
+    document.getElementById('searchBox').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      applyFilters();
+    });
+
+    document.getElementById('filterDay').addEventListener('change', applyFilters);
+    document.getElementById('filterStory').addEventListener('change', applyFilters);
+
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+      const dayFilter = document.getElementById('filterDay').value;
+      const storyFilter = document.getElementById('filterStory').value;
+      
+      filteredSchedules = schedules.filter(sch => {
+        const matchesSearch = searchTerm === '' || 
+          sch.day.toString().includes(searchTerm) ||
+          sch.purpose.toLowerCase().includes(searchTerm) ||
+          sch.visuals.toLowerCase().includes(searchTerm) ||
+          sch.caption.toLowerCase().includes(searchTerm) ||
+          sch.interactive.toLowerCase().includes(searchTerm) ||
+          sch.cta.toLowerCase().includes(searchTerm);
+        
+        let matchesDay = true;
+        if (dayFilter !== 'all') {
+          const [min, max] = dayFilter.split('-').map(Number);
+          matchesDay = sch.day >= min && sch.day <= max;
+        }
+        
+        const matchesStory = storyFilter === 'all' || sch.story === storyFilter;
+        
+        return matchesSearch && matchesDay && matchesStory;
+      });
+      
+      renderSchedules(filteredSchedules);
+    }
+
+    function exportToCSV() {
+      const headers = ['Day', 'Story', 'Purpose', 'Suggested Visuals', 'Short Caption Hook', 'Interactive Element', 'Soft CTA'];
+      const csvContent = [
+        headers.join(','),
+        ...schedules.map(sch => 
+          [sch.day, sch.story, sch.purpose, sch.visuals, sch.caption, sch.interactive, sch.cta]
+            .map(field => `"${field}"`)
+            .join(',')
+        )
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = '30-day-content-schedule.csv';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportToJSON() {
+      const dataStr = JSON.stringify(schedules, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = '30-day-content-schedule.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function printSchedule() {
+      window.print();
+    }
+
+    renderSchedules();
+  </script>
+</body>
+</html>
